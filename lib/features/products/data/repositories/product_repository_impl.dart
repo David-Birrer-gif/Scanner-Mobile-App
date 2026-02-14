@@ -1,4 +1,6 @@
-import '../../domain/entities/product.dart';
+import 'package:drift/drift.dart' show Value;
+
+import '../../domain/entities/product.dart' as entity;
 import '../../domain/repositories/product_repository.dart';
 import '../datasources/app_database.dart';
 import '../models/product_model.dart';
@@ -9,11 +11,11 @@ class ProductRepositoryImpl implements ProductRepository {
   final AppDatabase _database;
 
   @override
-  Stream<List<Product>> watchProducts() {
+  Stream<List<entity.Product>> watchProducts() {
     return _database.watchProducts().map(
           (rows) => rows
               .map(
-                (row) => Product(
+                (row) => entity.Product(
                   id: row.id,
                   barcode: row.barcode,
                   name: row.name,
@@ -22,7 +24,7 @@ class ProductRepositoryImpl implements ProductRepository {
                   quantity: row.quantity,
                   expiryDate: row.expiryDate,
                   fridgeId: row.fridgeId,
-                  status: ProductStatusX.fromValue(row.status),
+                  status: entity.ProductStatusX.fromValue(row.status),
                   createdAt: row.createdAt,
                 ),
               )
@@ -31,7 +33,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<void> save(Product product) {
+  Future<void> save(entity.Product product) {
     return _database.upsertProduct(
       ProductsCompanion(
         id: product.id == null ? const Value.absent() : Value(product.id!),
@@ -49,7 +51,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<void> updateStatus(int id, ProductStatus status) {
+  Future<void> updateStatus(int id, entity.ProductStatus status) {
     return _database.setStatus(id, status.value);
   }
 }
