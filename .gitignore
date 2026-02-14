@@ -1,0 +1,24 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+build/
+
+# Generated lockfile for applications can be committed if desired.
+# Keep ignored here to reduce local churn for this template-style repo.
+pubspec.lock
+
+# Android / Gradle local files
+android/.gradle/
+android/local.properties
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db

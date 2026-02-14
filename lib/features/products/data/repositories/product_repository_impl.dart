@@ -3,7 +3,6 @@ import 'package:drift/drift.dart' show Value;
 import '../../domain/entities/product.dart' as entity;
 import '../../domain/repositories/product_repository.dart';
 import '../datasources/app_database.dart';
-import '../models/product_model.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl(this._database);
@@ -24,7 +23,7 @@ class ProductRepositoryImpl implements ProductRepository {
                   quantity: row.quantity,
                   expiryDate: row.expiryDate,
                   fridgeId: row.fridgeId,
-                  status: ProductStatusX.fromValue(row.status),
+                  status: _statusFromDb(row.status),
                   createdAt: row.createdAt,
                 ),
               )
@@ -44,7 +43,7 @@ class ProductRepositoryImpl implements ProductRepository {
         quantity: Value(product.quantity),
         expiryDate: Value(product.expiryDate),
         fridgeId: Value(product.fridgeId),
-        status: Value(product.status.value),
+        status: Value(product.status.name),
         createdAt: Value(product.createdAt),
       ),
     );
@@ -52,6 +51,13 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<void> updateStatus(int id, entity.ProductStatus status) {
-    return _database.setStatus(id, status.value);
+    return _database.setStatus(id, status.name);
+  }
+
+  entity.ProductStatus _statusFromDb(String value) {
+    return entity.ProductStatus.values.firstWhere(
+      (status) => status.name == value,
+      orElse: () => entity.ProductStatus.active,
+    );
   }
 }
