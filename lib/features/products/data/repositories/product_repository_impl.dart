@@ -1,6 +1,5 @@
-import 'package:drift/drift.dart' show Value;
-
-import '../../domain/entities/product.dart' as entity;
+import '../../../notifications/domain/reminder_rule.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../datasources/app_database.dart';
 
@@ -10,54 +9,58 @@ class ProductRepositoryImpl implements ProductRepository {
   final AppDatabase _database;
 
   @override
-  Stream<List<entity.Product>> watchProducts() {
-    return _database.watchProducts().map(
-          (rows) => rows
-              .map(
-                (row) => entity.Product(
-                  id: row.id,
-                  barcode: row.barcode,
-                  name: row.name,
-                  brand: row.brand,
-                  category: row.category,
-                  quantity: row.quantity,
-                  expiryDate: row.expiryDate,
-                  fridgeId: row.fridgeId,
-                  status: _statusFromDb(row.status),
-                  createdAt: row.createdAt,
-                ),
-              )
-              .toList(),
-        );
+  Stream<List<Product>> watchProducts({bool activeOnly = false}) {
+    return _database.watchProducts(activeOnly: activeOnly);
   }
 
   @override
-  Future<void> save(entity.Product product) {
-    return _database.upsertProduct(
-      ProductsCompanion(
-        id: product.id == null ? const Value.absent() : Value(product.id!),
-        barcode: Value(product.barcode),
-        name: Value(product.name),
-        brand: Value(product.brand),
-        category: Value(product.category),
-        quantity: Value(product.quantity),
-        expiryDate: Value(product.expiryDate),
-        fridgeId: Value(product.fridgeId),
-        status: Value(product.status.name),
-        createdAt: Value(product.createdAt),
-      ),
-    );
-  }
+  Future<int> upsert(Product product) => _database.upsertProduct(product);
 
   @override
-  Future<void> updateStatus(int id, entity.ProductStatus status) {
-    return _database.setStatus(id, status.name);
-  }
+  Future<void> delete(int id) => _database.deleteProduct(id);
 
-  entity.ProductStatus _statusFromDb(String value) {
-    return entity.ProductStatus.values.firstWhere(
-      (status) => status.name == value,
-      orElse: () => entity.ProductStatus.active,
-    );
-  }
+  @override
+  Future<void> updateStatus(int id, ProductStatus status) => _database.setStatus(id, status);
+
+  @override
+  Future<List<int>> getGlobalReminderOffsets() => _database.getGlobalReminderOffsets();
+
+  @override
+  Future<void> saveGlobalReminderOffsets(List<int> offsets) =>
+      _database.saveGlobalReminderOffsets(offsets);
+
+  @override
+  Future<List<int>?> getProductReminderOverrides(int productId) =>
+      _database.getProductReminderOverrides(productId);
+
+  @override
+  Future<void> saveProductReminderOverrides(int productId, List<int>? offsets) =>
+      _database.saveProductReminderOverrides(productId, offsets);
+
+  @override
+  Future<void> saveScheduledNotifications(int productId, List<ReminderSchedule> schedules) =>
+      _database.saveScheduledNotifications(productId, schedules);
+
+  @override
+  Future<List<ReminderSchedule>> getScheduledNotifications(int productId) =>
+      _database.getScheduledNotifications(productId);
+
+  @override
+  Future<void> deleteScheduledNotifications(int productId) =>
+      _database.deleteScheduledNotifications(productId);
+
+  @override
+  Future<List<Product>> getActiveProducts() => _database.getActiveProducts();
+
+  @override
+  Future<List<Product>> getExpiringSoon({required int days}) => _database.getExpiringSoon(days);
+
+  @override
+  Future<List<Product>> getExpired() => _database.getExpired();
+
+  @override
+  Future<Map<ProductStatus, int>> getStatusCounts() => _database.getStatusCounts();
+
+  @override
+  Future<List<CategoryStat>> getCategoryStats() => _database.getCategoryStats();
 }

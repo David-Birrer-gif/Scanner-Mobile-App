@@ -2,7 +2,7 @@ enum ProductStatus { active, consumed, wasted }
 
 class Product {
   const Product({
-    required this.id,
+    this.id,
     required this.barcode,
     required this.name,
     required this.brand,
@@ -50,4 +50,12 @@ class Product {
       createdAt: createdAt ?? this.createdAt,
     );
   }
+}
+
+class CategoryStat {
+  const CategoryStat({required this.category, required this.total, required this.wasted});
+
+  final String category;
+  final int total;
+  final int wasted;
 }

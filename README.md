@@ -1,30 +1,30 @@
 # Scanner Mobile App (Android)
 
-Clean-architecture Flutter app for scanning groceries, tracking expiry, and local reminders.
+Offline-first grocery scanner app built with Flutter, Riverpod, Drift, Open Food Facts, ML Kit OCR, and local notifications.
 
-## Implemented now
-- Material 3 app shell with Home / Scan / Stats / Settings.
-- Barcode scan flow (EAN-13) with `mobile_scanner`.
-- Open Food Facts prefill with manual fallback.
-- Local persistence schema via Drift (products table).
-- Save product flow with reminder scheduling using `flutter_local_notifications`.
-- OCR integration placeholder using Google ML Kit text recognizer.
+## Features
+- EAN-13 barcode scan with Open Food Facts prefill and manual fallback.
+- Add/edit products with quantity, category, expiry date picker, and OCR expiry detection.
+- Local SQLite persistence (Drift-backed SQL access).
+- Expiry reminder orchestration with global and per-product reminder offsets.
+- Reminder reconciliation at app start and daily background run via Workmanager.
+- Product state handling (active / consumed / wasted) with reminder cancel/reschedule.
+- Home filters: all, expiring soon, expired, by category.
+- Statistics: consumed, wasted, waste ratio, category breakdown.
+- EN/DE localization-ready strings and ARB files.
 
-## Project structure
-```
-lib/
- ├─ core/
- ├─ features/
- │   ├─ products/
- │   ├─ notifications/
- │   ├─ statistics/
- │   ├─ settings/
- ├─ main.dart
-```
+## Run in Emulator
+1. Install Flutter SDK and Android Studio.
+2. In project root:
+   ```bash
+   flutter pub get
+   flutter analyze
+   flutter test
+   flutter run -d emulator-5554
+   ```
+3. Alternatively start an emulator in Android Studio and run with the green Run button.
 
-## TODO (next iterations)
-- Complete ML Kit camera capture pipeline for real expiry date OCR.
-- Add generated drift files (`build_runner`) and DB migrations.
-- Implement background daily expiry checks (workmanager).
-- Add product status actions (consumed/wasted) from UI.
-- Add comprehensive localization resources and tests.
+## Known limitations
+- Open Food Facts coverage depends on product/barcode availability.
+- OCR quality depends on camera focus, lighting, and date print style.
+- Android boot-time full reschedule is approximated by app-start and daily Workmanager reconciliation.

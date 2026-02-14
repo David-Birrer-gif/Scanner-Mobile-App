@@ -1,5 +1,3 @@
-import '../../domain/entities/product.dart';
-
 class ProductPrefill {
   const ProductPrefill({
     required this.barcode,
@@ -22,15 +20,4 @@ class ProductPrefill {
         category: '',
         found: false,
       );
-}
-
-extension ProductStatusX on ProductStatus {
-  String get value => name;
-
-  static ProductStatus fromValue(String value) {
-    return ProductStatus.values.firstWhere(
-      (s) => s.name == value,
-      orElse: () => ProductStatus.active,
-    );
-  }
 }

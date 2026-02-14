@@ -5,5 +5,5 @@ class SaveProductUseCase {
   SaveProductUseCase(this.repository);
   final ProductRepository repository;
 
-  Future<void> call(Product product) => repository.save(product);
+  Future<int> call(Product product) => repository.upsert(product);
 }

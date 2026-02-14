@@ -25,19 +25,36 @@ class ScannedPrefillController extends StateNotifier<AsyncValue<ProductPrefill?>
   }
 }
 
-final productsStreamProvider = StreamProvider<List<Product>>(
+final allProductsProvider = StreamProvider<List<Product>>(
   (ref) => ref.watch(getProductsUseCaseProvider).call(),
 );
 
-final saveProductControllerProvider = Provider(
-  (ref) => SaveProductController(ref),
+final activeProductsProvider = StreamProvider<List<Product>>(
+  (ref) => ref.watch(getProductsUseCaseProvider).call(activeOnly: true),
 );
+
+final expiringSoonProvider = FutureProvider<List<Product>>((ref) async {
+  return ref.watch(productRepositoryProvider).getExpiringSoon(days: 3);
+});
+
+final expiredProductsProvider = FutureProvider<List<Product>>((ref) async {
+  return ref.watch(productRepositoryProvider).getExpired();
+});
+
+final categoryGroupedProvider = FutureProvider<Map<String, List<Product>>>((ref) async {
+  final products = await ref.watch(productRepositoryProvider).getActiveProducts();
+  final grouped = <String, List<Product>>{};
+  for (final product in products) {
+    grouped.putIfAbsent(product.category, () => []).add(product);
+  }
+  return grouped;
+});
 
 class SaveProductController {
   SaveProductController(this.ref);
   final Ref ref;
 
-  Future<void> saveProduct({
+  Future<int> saveProduct({
     int? id,
     required String barcode,
     required String name,
@@ -45,7 +62,7 @@ class SaveProductController {
     required String category,
     required int quantity,
     required DateTime expiryDate,
-    List<int> reminderDays = const [3, 1],
+    List<int>? customReminderOffsets,
   }) async {
     final product = Product(
       id: id,
@@ -59,10 +76,16 @@ class SaveProductController {
       status: ProductStatus.active,
       createdAt: DateTime.now(),
     );
+    return ref.read(upsertProductUseCaseProvider).call(product, customOffsets: customReminderOffsets);
+  }
 
-    await ref.read(saveProductUseCaseProvider).call(product);
-    await ref
-        .read(notificationServiceProvider)
-        .scheduleReminders(product: product, daysBefore: reminderDays);
+  Future<void> deleteProduct(int id) async {
+    await ref.read(deleteProductUseCaseProvider).call(id);
+  }
+
+  Future<void> markStatus(int id, ProductStatus status) async {
+    await ref.read(updateProductStatusUseCaseProvider).call(id, status);
   }
 }
+
+final saveProductControllerProvider = Provider((ref) => SaveProductController(ref));

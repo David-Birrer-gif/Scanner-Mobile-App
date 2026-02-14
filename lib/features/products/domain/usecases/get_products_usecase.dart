@@ -5,5 +5,6 @@ class GetProductsUseCase {
   GetProductsUseCase(this.repository);
   final ProductRepository repository;
 
-  Stream<List<Product>> call() => repository.watchProducts();
+  Stream<List<Product>> call({bool activeOnly = false}) =>
+      repository.watchProducts(activeOnly: activeOnly);
 }
