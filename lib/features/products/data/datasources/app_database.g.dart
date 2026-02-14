@@ -41,6 +41,23 @@ class Product extends DataClass implements Insertable<Product> {
       createdAt: Value(createdAt),
     ).toColumns(nullToAbsent);
   }
+
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'barcode': serializer.toJson<String>(barcode),
+      'name': serializer.toJson<String>(name),
+      'brand': serializer.toJson<String>(brand),
+      'category': serializer.toJson<String>(category),
+      'quantity': serializer.toJson<int>(quantity),
+      'expiryDate': serializer.toJson<DateTime>(expiryDate),
+      'fridgeId': serializer.toJson<String>(fridgeId),
+      'status': serializer.toJson<String>(status),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
 }
 
 class ProductsCompanion extends UpdateCompanion<Product> {

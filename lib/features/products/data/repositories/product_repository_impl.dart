@@ -24,7 +24,7 @@ class ProductRepositoryImpl implements ProductRepository {
                   quantity: row.quantity,
                   expiryDate: row.expiryDate,
                   fridgeId: row.fridgeId,
-                  status: entity.ProductStatusX.fromValue(row.status),
+                  status: ProductStatusX.fromValue(row.status),
                   createdAt: row.createdAt,
                 ),
               )
